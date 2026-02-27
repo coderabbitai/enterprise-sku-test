@@ -8,6 +8,7 @@ const SEVERITY_PATTERNS = {
 };
 
 let currentSettings = { nitpick: true, suggestion: true, warning: true, issue: true };
+let options = { autoCollapse: false, showBadge: true, trackStats: true };
 
 function isCodeRabbitComment(commentEl) {
   const authorEl =
@@ -39,6 +40,8 @@ function getCommentElements() {
 
 function applyFilters() {
   let hiddenCount = 0;
+  const severityCounts = { nitpick: 0, suggestion: 0, warning: 0, issue: 0 };
+  let totalScanned = 0;
 
   getCommentElements().forEach((el) => {
     if (!isCodeRabbitComment(el)) return;
@@ -46,25 +49,87 @@ function applyFilters() {
     const severity = detectSeverity(el);
     if (!severity) return;
 
+    totalScanned++;
+    severityCounts[severity]++;
+
     const shouldShow = currentSettings[severity] !== false;
 
-    // Walk up to the nearest hideable container (inline comment thread, timeline item, etc.)
-    const container = el.closest(".js-timeline-item") || el.closest(".js-resolvable-timeline-thread-container") || el;
+    // Walk up to the nearest hideable container
+    const container =
+      el.closest(".js-timeline-item") ||
+      el.closest(".js-resolvable-timeline-thread-container") ||
+      el;
 
     if (shouldShow) {
       container.style.display = "";
       container.classList.remove("coderabbit-hidden");
+      container.classList.remove("coderabbit-collapsed");
+      // Remove collapse overlay if present
+      const overlay = container.querySelector(".coderabbit-collapse-bar");
+      if (overlay) overlay.remove();
     } else {
-      container.style.display = "none";
-      container.classList.add("coderabbit-hidden");
+      if (options.autoCollapse) {
+        // Collapse mode: show a minimal bar instead of fully hiding
+        container.style.display = "";
+        container.classList.remove("coderabbit-hidden");
+        container.classList.add("coderabbit-collapsed");
+
+        if (!container.querySelector(".coderabbit-collapse-bar")) {
+          const bar = document.createElement("div");
+          bar.className = "coderabbit-collapse-bar";
+          bar.innerHTML = `<span class="coderabbit-collapse-badge coderabbit-badge-${severity}">${severity}</span> <span class="coderabbit-collapse-text">CodeRabbit comment (click to expand)</span>`;
+          bar.addEventListener("click", () => {
+            container.classList.toggle("coderabbit-expanded");
+          });
+          container.prepend(bar);
+        }
+      } else {
+        // Full hide mode
+        container.style.display = "none";
+        container.classList.add("coderabbit-hidden");
+        container.classList.remove("coderabbit-collapsed");
+        const overlay = container.querySelector(".coderabbit-collapse-bar");
+        if (overlay) overlay.remove();
+      }
       hiddenCount++;
     }
   });
 
+  // Report to background for badge and stats
+  if (options.showBadge) {
+    chrome.runtime.sendMessage({ type: "UPDATE_BADGE", hiddenCount }).catch(() => {});
+  }
+
+  if (options.trackStats && totalScanned > 0) {
+    chrome.runtime
+      .sendMessage({
+        type: "RECORD_STATS",
+        data: {
+          scanned: totalScanned,
+          hidden: hiddenCount,
+          severityCounts,
+          url: window.location.href,
+        },
+      })
+      .catch(() => {});
+  }
+
   return hiddenCount;
 }
 
-// Listen for settings changes from popup
+// Load options from storage
+async function loadOptions() {
+  try {
+    const result = await chrome.storage.sync.get("coderabbitOptions");
+    if (result.coderabbitOptions) {
+      options = { ...options, ...result.coderabbitOptions };
+    }
+  } catch {
+    // Use defaults
+  }
+}
+
+// Listen for settings changes from popup or keyboard shortcuts
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === "UPDATE_SEVERITY_FILTER") {
     currentSettings = message.settings;
@@ -77,13 +142,30 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
+// Listen for options changes
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.coderabbitOptions) {
+    options = { ...options, ...changes.coderabbitOptions.newValue };
+    applyFilters();
+  }
+  if (changes.severitySettings) {
+    currentSettings = { ...currentSettings, ...changes.severitySettings.newValue };
+    applyFilters();
+  }
+});
+
 // Load saved settings on page load
-chrome.storage.sync.get("severitySettings", (result) => {
+async function init() {
+  await loadOptions();
+
+  const result = await chrome.storage.sync.get("severitySettings");
   if (result.severitySettings) {
     currentSettings = result.severitySettings;
   }
   applyFilters();
-});
+}
+
+init();
 
 // Re-apply when GitHub dynamically loads content (SPA navigation, lazy-loaded comments)
 const observer = new MutationObserver(() => {

@@ -50,4 +50,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   updateHiddenCount();
+
+  document.getElementById("openDashboard").addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
+  });
+
+  document.getElementById("openOptions").addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.runtime.openOptionsPage();
+  });
 });

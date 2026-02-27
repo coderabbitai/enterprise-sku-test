@@ -105,6 +105,25 @@
       color: #656d76;
       text-align: center;
     }
+
+    .popup-links {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .popup-links a {
+      color: #0969da;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .popup-links a:hover { text-decoration: underline; }
+
+    .link-sep {
+      color: #d0d7de;
+      margin: 0 6px;
+    }
   </style>
 </head>
 <body>
@@ -152,6 +171,12 @@
   </div>
 
   <div class="hidden-count" id="hiddenCount"></div>
+
+  <div class="popup-links">
+    <a href="#" id="openDashboard">Dashboard</a>
+    <span class="link-sep">|</span>
+    <a href="#" id="openOptions">Options</a>
+  </div>
 
   <script src="popup.js"></script>
 </body>
