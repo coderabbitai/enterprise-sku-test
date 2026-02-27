@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "CodeRabbit Comment Filter",
-  "version": "1.0.0",
-  "description": "Hide CodeRabbit review comments on GitHub by severity level",
-  "permissions": ["storage"],
+  "version": "1.2.0",
+  "description": "Filter CodeRabbit review comments by severity with dark mode, accessibility, and file grouping",
+  "permissions": ["storage", "activeTab"],
   "host_permissions": ["https://github.com/*"],
   "content_scripts": [
     {

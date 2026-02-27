@@ -1,36 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-tertiary: #eaeef2;
+      --text-primary: #24292f;
+      --text-secondary: #656d76;
+      --border-color: #d0d7de;
+      --toggle-off: #d0d7de;
+      --toggle-on: #1a7f37;
+      --focus-ring: rgba(9, 105, 218, 0.4);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #161b22;
+        --bg-secondary: #0d1117;
+        --bg-tertiary: #21262d;
+        --text-primary: #e6edf3;
+        --text-secondary: #8b949e;
+        --border-color: #30363d;
+        --toggle-off: #30363d;
+        --toggle-on: #238636;
+        --focus-ring: rgba(56, 139, 253, 0.4);
+      }
+    }
+
+    /* Force dark mode override */
+    :root[data-theme="dark"] {
+      --bg-primary: #161b22;
+      --bg-secondary: #0d1117;
+      --bg-tertiary: #21262d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --border-color: #30363d;
+      --toggle-off: #30363d;
+      --toggle-on: #238636;
+      --focus-ring: rgba(56, 139, 253, 0.4);
+    }
+
+    /* Force light mode override */
+    :root[data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-tertiary: #eaeef2;
+      --text-primary: #24292f;
+      --text-secondary: #656d76;
+      --border-color: #d0d7de;
+      --toggle-off: #d0d7de;
+      --toggle-on: #1a7f37;
+      --focus-ring: rgba(9, 105, 218, 0.4);
+    }
+
     body {
-      width: 280px;
+      width: 300px;
       padding: 16px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       font-size: 14px;
-      color: #24292f;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      margin: 0;
+    }
+
+    /* Header with theme toggle */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
     }
 
     h2 {
-      margin: 0 0 4px 0;
+      margin: 0;
       font-size: 16px;
     }
 
+    .theme-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: background 0.15s;
+      line-height: 1;
+    }
+
+    .theme-btn:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .theme-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
     .subtitle {
-      color: #656d76;
+      color: var(--text-secondary);
       font-size: 12px;
       margin: 0 0 14px 0;
     }
 
+    /* Severity rows */
     .severity-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 8px 0;
-      border-bottom: 1px solid #d0d7de;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .severity-row:last-child {
+    .severity-row:last-of-type {
       border-bottom: none;
     }
 
@@ -54,6 +138,24 @@
     .badge-warning { background-color: #bf8700; }
     .badge-issue { background-color: #cf222e; }
 
+    .severity-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
+      padding: 1px 7px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .severity-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Accessible toggle */
     .toggle {
       position: relative;
       width: 40px;
@@ -65,13 +167,19 @@
       opacity: 0;
       width: 0;
       height: 0;
+      position: absolute;
+    }
+
+    .toggle input:focus-visible + .slider {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     .slider {
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #d0d7de;
+      background-color: var(--toggle-off);
       border-radius: 22px;
       transition: background-color 0.2s;
     }
@@ -89,69 +197,227 @@
     }
 
     .toggle input:checked + .slider {
-      background-color: #1a7f37;
+      background-color: var(--toggle-on);
     }
 
     .toggle input:checked + .slider::before {
       transform: translateX(18px);
     }
 
+    /* Status bar */
     .hidden-count {
       margin-top: 12px;
       padding: 8px;
-      background: #f6f8fa;
+      background: var(--bg-secondary);
       border-radius: 6px;
       font-size: 12px;
-      color: #656d76;
+      color: var(--text-secondary);
       text-align: center;
+    }
+
+    /* File grouping section */
+    .file-group-section {
+      margin-top: 12px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+    }
+
+    .file-group-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .file-group-list {
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .file-group-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .file-group-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .file-group-item:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: -2px;
+    }
+
+    .file-name {
+      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .file-count-badges {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .file-mini-badge {
+      font-size: 10px;
+      padding: 0 5px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .file-group-empty {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 8px;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .quick-btn {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      font-size: 11px;
+      font-family: inherit;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: center;
+    }
+
+    .quick-btn:hover { background: var(--bg-tertiary); }
+
+    .quick-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Live region for announcements */
+    #liveRegion {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
     }
   </style>
 </head>
 <body>
-  <h2>CodeRabbit Filter</h2>
-  <p class="subtitle">Toggle comment visibility by severity</p>
+  <div aria-live="polite" aria-atomic="true" id="liveRegion" role="status"></div>
 
-  <div class="severity-row">
-    <span class="severity-label">
-      <span class="severity-badge badge-nitpick">nitpick</span>
-    </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="nitpick" checked>
-      <span class="slider"></span>
-    </label>
+  <div class="header-row">
+    <h2 id="popupTitle">CodeRabbit Filter</h2>
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span id="themeIcon">&#9790;</span>
+    </button>
+  </div>
+  <p class="subtitle" id="popupSubtitle">Toggle comment visibility by severity</p>
+
+  <!-- Severity toggles with counts -->
+  <div role="group" aria-labelledby="popupSubtitle">
+    <div class="severity-row">
+      <span class="severity-label">
+        <span class="severity-badge badge-nitpick">nitpick</span>
+      </span>
+      <span class="severity-right">
+        <span class="severity-count" id="count-nitpick" aria-label="nitpick count">0</span>
+        <label class="toggle">
+          <input type="checkbox" data-severity="nitpick" checked role="switch" aria-label="Show nitpick comments">
+          <span class="slider"></span>
+        </label>
+      </span>
+    </div>
+
+    <div class="severity-row">
+      <span class="severity-label">
+        <span class="severity-badge badge-suggestion">suggestion</span>
+      </span>
+      <span class="severity-right">
+        <span class="severity-count" id="count-suggestion" aria-label="suggestion count">0</span>
+        <label class="toggle">
+          <input type="checkbox" data-severity="suggestion" checked role="switch" aria-label="Show suggestion comments">
+          <span class="slider"></span>
+        </label>
+      </span>
+    </div>
+
+    <div class="severity-row">
+      <span class="severity-label">
+        <span class="severity-badge badge-warning">warning</span>
+      </span>
+      <span class="severity-right">
+        <span class="severity-count" id="count-warning" aria-label="warning count">0</span>
+        <label class="toggle">
+          <input type="checkbox" data-severity="warning" checked role="switch" aria-label="Show warning comments">
+          <span class="slider"></span>
+        </label>
+      </span>
+    </div>
+
+    <div class="severity-row">
+      <span class="severity-label">
+        <span class="severity-badge badge-issue">issue</span>
+      </span>
+      <span class="severity-right">
+        <span class="severity-count" id="count-issue" aria-label="issue count">0</span>
+        <label class="toggle">
+          <input type="checkbox" data-severity="issue" checked role="switch" aria-label="Show issue comments">
+          <span class="slider"></span>
+        </label>
+      </span>
+    </div>
   </div>
 
-  <div class="severity-row">
-    <span class="severity-label">
-      <span class="severity-badge badge-suggestion">suggestion</span>
-    </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="suggestion" checked>
-      <span class="slider"></span>
-    </label>
+  <div class="hidden-count" id="hiddenCount" role="status"></div>
+
+  <!-- Quick actions -->
+  <div class="quick-actions">
+    <button class="quick-btn" id="showAll" aria-label="Show all comments">Show All</button>
+    <button class="quick-btn" id="hideAll" aria-label="Hide all comments">Hide All</button>
+    <button class="quick-btn" id="issuesOnly" aria-label="Show only issue comments">Issues Only</button>
   </div>
 
-  <div class="severity-row">
-    <span class="severity-label">
-      <span class="severity-badge badge-warning">warning</span>
-    </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="warning" checked>
-      <span class="slider"></span>
-    </label>
+  <!-- File grouping -->
+  <div class="file-group-section">
+    <div class="file-group-header">Comments by File</div>
+    <div class="file-group-list" id="fileGroupList" role="list">
+      <div class="file-group-empty">Navigate to a GitHub PR to see file breakdown</div>
+    </div>
   </div>
-
-  <div class="severity-row">
-    <span class="severity-label">
-      <span class="severity-badge badge-issue">issue</span>
-    </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="issue" checked>
-      <span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="hidden-count" id="hiddenCount"></div>
 
   <script src="popup.js"></script>
 </body>
