@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <style>
     body {
-      width: 280px;
+      width: 320px;
       padding: 16px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       font-size: 14px;
@@ -22,6 +22,38 @@
       margin: 0 0 14px 0;
     }
 
+    /* Search bar */
+    .search-container {
+      margin-bottom: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-input:focus {
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+    }
+
+    .search-input::placeholder {
+      color: #8c959f;
+    }
+
+    .search-hint {
+      font-size: 11px;
+      color: #8c959f;
+      margin-top: 4px;
+    }
+
+    /* Severity rows */
     .severity-row {
       display: flex;
       align-items: center;
@@ -30,7 +62,7 @@
       border-bottom: 1px solid #d0d7de;
     }
 
-    .severity-row:last-child {
+    .severity-row:last-of-type {
       border-bottom: none;
     }
 
@@ -53,6 +85,23 @@
     .badge-suggestion { background-color: #0969da; }
     .badge-warning { background-color: #bf8700; }
     .badge-issue { background-color: #cf222e; }
+
+    .severity-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: #656d76;
+      background: #eaeef2;
+      padding: 1px 7px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .severity-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     .toggle {
       position: relative;
@@ -105,53 +154,176 @@
       color: #656d76;
       text-align: center;
     }
+
+    /* Export section */
+    .export-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #d0d7de;
+    }
+
+    .export-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #656d76;
+      margin-bottom: 8px;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .export-btn {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+      font-family: inherit;
+      color: #24292f;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: center;
+    }
+
+    .export-btn:hover {
+      background: #f6f8fa;
+    }
+
+    .export-btn:active {
+      background: #eaeef2;
+    }
+
+    /* Summary widget toggle */
+    .widget-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+    }
+
+    .widget-label {
+      font-size: 12px;
+      color: #656d76;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .quick-btn {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      background: #f6f8fa;
+      font-size: 11px;
+      font-family: inherit;
+      color: #24292f;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: center;
+    }
+
+    .quick-btn:hover { background: #eaeef2; }
   </style>
 </head>
 <body>
   <h2>CodeRabbit Filter</h2>
-  <p class="subtitle">Toggle comment visibility by severity</p>
+  <p class="subtitle">Filter, search, and export comments by severity</p>
 
+  <!-- Search bar -->
+  <div class="search-container">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search within comments...">
+    <div class="search-hint" id="searchHint"></div>
+  </div>
+
+  <!-- Severity toggles with counts -->
   <div class="severity-row">
     <span class="severity-label">
       <span class="severity-badge badge-nitpick">nitpick</span>
     </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="nitpick" checked>
-      <span class="slider"></span>
-    </label>
+    <span class="severity-right">
+      <span class="severity-count" id="count-nitpick">0</span>
+      <label class="toggle">
+        <input type="checkbox" data-severity="nitpick" checked>
+        <span class="slider"></span>
+      </label>
+    </span>
   </div>
 
   <div class="severity-row">
     <span class="severity-label">
       <span class="severity-badge badge-suggestion">suggestion</span>
     </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="suggestion" checked>
-      <span class="slider"></span>
-    </label>
+    <span class="severity-right">
+      <span class="severity-count" id="count-suggestion">0</span>
+      <label class="toggle">
+        <input type="checkbox" data-severity="suggestion" checked>
+        <span class="slider"></span>
+      </label>
+    </span>
   </div>
 
   <div class="severity-row">
     <span class="severity-label">
       <span class="severity-badge badge-warning">warning</span>
     </span>
-    <label class="toggle">
-      <input type="checkbox" data-severity="warning" checked>
-      <span class="slider"></span>
-    </label>
+    <span class="severity-right">
+      <span class="severity-count" id="count-warning">0</span>
+      <label class="toggle">
+        <input type="checkbox" data-severity="warning" checked>
+        <span class="slider"></span>
+      </label>
+    </span>
   </div>
 
   <div class="severity-row">
     <span class="severity-label">
       <span class="severity-badge badge-issue">issue</span>
     </span>
+    <span class="severity-right">
+      <span class="severity-count" id="count-issue">0</span>
+      <label class="toggle">
+        <input type="checkbox" data-severity="issue" checked>
+        <span class="slider"></span>
+      </label>
+    </span>
+  </div>
+
+  <div class="hidden-count" id="hiddenCount"></div>
+
+  <!-- Quick actions -->
+  <div class="quick-actions">
+    <button class="quick-btn" id="showAll">Show All</button>
+    <button class="quick-btn" id="hideAll">Hide All</button>
+    <button class="quick-btn" id="issuesOnly">Issues Only</button>
+  </div>
+
+  <!-- Widget toggle -->
+  <div class="widget-row">
+    <span class="widget-label">Show floating summary on page</span>
     <label class="toggle">
-      <input type="checkbox" data-severity="issue" checked>
+      <input type="checkbox" id="widgetToggle" checked>
       <span class="slider"></span>
     </label>
   </div>
 
-  <div class="hidden-count" id="hiddenCount"></div>
+  <!-- Export section -->
+  <div class="export-section">
+    <div class="export-label">Export visible comments</div>
+    <div class="export-buttons">
+      <button class="export-btn" data-format="markdown">Markdown</button>
+      <button class="export-btn" data-format="json">JSON</button>
+      <button class="export-btn" data-format="csv">CSV</button>
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
