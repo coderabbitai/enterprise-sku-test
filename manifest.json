@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
   "name": "CodeRabbit Comment Filter",
-  "version": "1.0.0",
-  "description": "Hide CodeRabbit review comments on GitHub by severity level",
-  "permissions": ["storage"],
+  "version": "2.0.0",
+  "description": "Filter CodeRabbit review comments by severity with statistics dashboard, keyboard shortcuts, and per-repo tracking",
+  "permissions": ["storage", "activeTab"],
   "host_permissions": ["https://github.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://github.com/*"],
@@ -24,5 +27,24 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "options_page": "options.html",
+  "commands": {
+    "toggle-nitpick": {
+      "suggested_key": { "default": "Alt+Shift+1" },
+      "description": "Toggle nitpick comments"
+    },
+    "toggle-suggestion": {
+      "suggested_key": { "default": "Alt+Shift+2" },
+      "description": "Toggle suggestion comments"
+    },
+    "toggle-warning": {
+      "suggested_key": { "default": "Alt+Shift+3" },
+      "description": "Toggle warning comments"
+    },
+    "toggle-issue": {
+      "suggested_key": { "default": "Alt+Shift+4" },
+      "description": "Toggle issue comments"
+    }
   }
 }
