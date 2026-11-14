@@ -1,9 +1,10 @@
 # Disposable production smoke fixture; do not merge.
-# The off variant intentionally omits approve_on_skipped_review.
+# Explicitly allow approval of this intentionally skipped draft review.
 inheritance: false
 reviews:
   auto_approvals:
     enabled: true
+    approve_on_skipped_review: true
   auto_review:
     enabled: true
     drafts: false
