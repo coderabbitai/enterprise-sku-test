@@ -1,3 +1,3 @@
-export function displayLabel(value: string): string {
-  return value.trim() || "Untitled";
+export function displayLabel(label: string): string {
+  return label.trim() || "No label";
 }
