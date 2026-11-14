@@ -3,6 +3,7 @@ inheritance: false
 reviews:
   auto_approvals:
     enabled: true
+    max_merge_risk: critical
   auto_review:
     enabled: true
     auto_incremental_review: true
