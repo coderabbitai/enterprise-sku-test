@@ -1,0 +1,8 @@
+# Disposable approval regression fixture; do not merge.
+inheritance: false
+reviews:
+  auto_approvals:
+    enabled: true
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
