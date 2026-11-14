@@ -1,4 +1,4 @@
-/** Format an optional display label, using a fallback for blank input. */
+/** Format a display label, using a fallback for blank input. */
 export function formatDisplayLabel(label: string): string {
-  return label.trim() || "Untitled";
+  return label.trim().replace(/\s+/g, " ") || "Untitled";
 }
