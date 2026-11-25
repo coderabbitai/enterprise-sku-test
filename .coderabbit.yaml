@@ -1,0 +1,11 @@
+# Disposable production approval verification. Close without merging.
+inheritance: false
+reviews:
+  auto_approvals:
+    enabled: true
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+  path_filters:
+    - "**"
+    - "!approval-smoke-generated.json"
