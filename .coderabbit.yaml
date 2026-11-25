@@ -1,0 +1,7 @@
+# Disposable explicit approval smoke fixture. Close without merging.
+inheritance: false
+reviews:
+  auto_approvals:
+    enabled: true
+  auto_review:
+    enabled: false
