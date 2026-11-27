@@ -1,0 +1,9 @@
+# Disposable review thread rollout smoke fixture. Close without merging.
+inheritance: false
+reviews:
+  profile: assertive
+  auto_approvals:
+    enabled: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
