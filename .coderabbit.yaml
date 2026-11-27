@@ -1,0 +1,7 @@
+reviews:
+  auto_review:
+    enabled: false
+  auto_approvals:
+    enabled: true
+    allow_author_approval: true
+    approve_on_skipped_review: false
