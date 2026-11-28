@@ -1,0 +1,7 @@
+reviews:
+  auto_review:
+    enabled: true
+    base_branches:
+      - '^codex/owned-approval-base-20261128-v0354-us-east4$'
+  auto_approvals:
+    enabled: true
